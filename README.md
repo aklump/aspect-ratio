@@ -15,6 +15,8 @@ Here is an example of the output of the CLI.
     nearby         4:3     768 x 576         -58
     golden      1.62:1     768 x 474        -160
 
+* The nearby ratios are listed in the order of variance from the original height with the least variance first.
+
 ## Install Globally Using Composer
 
 To be able to use `aspratio` from any directory in your CLI you may want to install this globally.
@@ -35,15 +37,23 @@ To check this you must open _~/.bash_profile_ (or _~/.bashrc_); you're looking f
         aspratio 768 634
         aspratio 768,634
         
-1. Use the `--precision={number}` to control the rounding precision.
+1. Use the `--precision={number}` to control the rounding precision.  Use the `--nearby={number}` to control the total number of nearby ratios to calculate.
 
-1. Use the `--nearby={number}` to control the total number of nearby ratios to calculate.
+        $ ./aspratio 444x187 --nearby=2 --precision=4
+        type          ratio    dimensions    variance
+        whole      1332:561     444 x 187           0
+        decimal    2.3743:1     444 x 187           0
+        nearby         12:5     444 x 185          -2
+        nearby        37:16     444 x 192           5
+        golden      1.618:1     444 x 274          87
+
+
 1. Use `--json` to return the output in JSON.
 
         $ ./aspratio 768x512 -i --json
         [{"type":"original","ratio_x":512,"ratio_y":768,"width":512,"height":768,"difference_y":0},{"type":"whole","ratio_x":2,"ratio_y":3,"width":512,"height":768,"difference_y":0},{"type":"nearby","ratio_x":2,"ratio_y":3,"width":512,"height":768,"difference_y":0},{"type":"decimal","ratio_x":0.67000000000000003996802888650563545525074005126953125,"ratio_y":1,"width":512,"height":764,"difference_y":-4},{"type":"nearby","ratio_x":16,"ratio_y":25,"width":512,"height":800,"difference_y":32},{"type":"nearby","ratio_x":16,"ratio_y":23,"width":512,"height":736,"difference_y":-32},{"type":"nearby","ratio_x":8,"ratio_y":13,"width":512,"height":832,"difference_y":64},{"type":"nearby","ratio_x":8,"ratio_y":11,"width":512,"height":704,"difference_y":-64},{"type":"golden","ratio_x":1.62000000000000010658141036401502788066864013671875,"ratio_y":1,"width":512,"height":316,"difference_y":-452}]
 
-### Get New Dimensions
+### Get New Dimensions, a.k.a. Scaling
 
 1. To get a new dimension based on a dimension set do the following:
 
