@@ -1,0 +1,20 @@
+{
+    "name": "aklump\/aspect-ratio",
+    "type": "library",
+    "description": "A project to work with aspect ratios.",
+    "keywords": [],
+    "homepage": "https:\/\/github.com\/aklump\/aspect-ratio",
+    "license": "BSD-3-Clause",
+    "autoload": {
+        "psr-4": {
+            "AKlump\\AspectRatio\\": "src\/AKlump\/AspectRatio\/"
+        }
+    },
+    "require": {
+        "aklump/loft-lib": "^1.0"
+    },
+    "version": "1.0",
+    "bin": [
+        ".\/ratio"
+    ]
+}

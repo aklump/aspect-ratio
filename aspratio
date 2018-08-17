@@ -1,0 +1,76 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ *
+ * This is the CLI controller for aspect_ratio
+ *
+ * usage: ratio 1665 607
+ */
+
+namespace AKlump\AspectRatio;
+
+use AKlump\LoftLib\Bash\Color;
+use AKlump\LoftLib\Bash\Output;
+
+define('ROOT', dirname(__FILE__));
+
+try {
+  require ROOT . '/includes/bootstrap.inc';
+
+  $ratios = $aspect_ratio->getAllRatios();
+  if ($cli->hasParam('json')) {
+    print json_encode(array_values($ratios)) . PHP_EOL;
+  }
+  else {
+    $rows = [];
+    $nearby = FALSE;
+
+    // Remove the original.
+    array_shift($ratios);
+    foreach ($ratios as $ratio) {
+      $item = [];
+
+      $color = '';
+
+      $item['type'] = $ratio['type'];
+      $item['ratio'] = $ratio['ratio_x'] . ':' . $ratio['ratio_y'];
+      $item['dimensions'] = $ratio['width'] . ' x ' . $ratio['height'];
+      $item['variance'] = $ratio['difference_y'];
+
+      if (!$nearby && $ratio['type'] === 'nearby') {
+        $nearby = TRUE;
+
+        // Setup color for nicest ratio.
+        $color = 'dark grey on green';
+      }
+      $rows[] = [
+        'color' => $color,
+        'data' => $item,
+      ];
+    }
+    $cell_keys = array_keys($rows[0]['data']);
+
+    // Create the header row.
+    array_unshift($rows, [
+      'color' => 'white',
+      'data' => array_combine($cell_keys, $cell_keys),
+    ]);
+
+    // Setup alignment for all columns, defaults to right.
+    $alignment = [
+      'type' => 'left',
+    ];
+    $alignment += array_fill_keys($cell_keys, 'right');
+
+    // Print the output as a table.
+    print Output::columns($rows, $alignment, "    ") . PHP_EOL;
+  }
+}
+catch (\Exception $exception) {
+  echo Color::wrap('red', $exception->getMessage() . PHP_EOL);
+  exit(1);
+}
+
+exit(0);
