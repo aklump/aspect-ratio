@@ -1,7 +1,7 @@
 {
     "name": "aklump\/aspect-ratio",
     "type": "library",
-    "description": "A project to work with aspect ratios.",
+    "description": "Calculate absolute and nearby aspect ratios from a dimension set.",
     "keywords": [],
     "homepage": "https:\/\/github.com\/aklump\/aspect-ratio",
     "license": "BSD-3-Clause",
@@ -11,10 +11,18 @@
         }
     },
     "require": {
-        "aklump/loft-lib": "^1.0"
+        "aklump\/loft-lib": "^1.0"
     },
     "version": "1.0",
     "bin": [
         ".\/ratio"
+    ],
+    "authors": [
+        {
+            "name": "Aaron Klump",
+            "email": "sourcecode@intheloftstudios.com",
+            "homepage": "",
+            "role": ""
+        }
     ]
 }
