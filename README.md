@@ -31,11 +31,11 @@ To check this you must open _~/.bash_profile_ (or _~/.bashrc_); you're looking f
 
 ## Usage
 
-1. To determine the aspect ratio of a dimension set type any of the following in your terminal:
+1. To determine the aspect ratios of a dimension set type any of the following in your terminal:
         
-        aspratio 768x634
-        aspratio 768 634
-        aspratio 768,634
+        $ aspratio 768x634
+        $ aspratio 768 634
+        $ aspratio 768,634
         
 1. Use the `--precision={number}` to control the rounding precision.  Use the `--nearby={number}` to control the total number of nearby ratios to calculate.
 
@@ -57,7 +57,7 @@ To check this you must open _~/.bash_profile_ (or _~/.bashrc_); you're looking f
 
 1. To get a new dimension based on a dimension set do the following:
 
-        $ ./aspratio 1080x520 --width=320
+        $ ./aspratio 1080 520 --width=320
         type        ratio    dimensions    variance
         whole       81:39     320 x 154           0
         decimal    2.08:1     320 x 154           0
@@ -97,4 +97,4 @@ To check this you must open _~/.bash_profile_ (or _~/.bashrc_); you're looking f
 
 ## Contributing
 
-If you find this project useful... please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4E5KZHDQCEUV8&item_name=Gratitude%20for%20aklump%2Faspect_ratio).
+If you find this project useful... please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4E5KZHDQCEUV8&item_name=Gratitude%20for%20aklump%2Faspect-ratio).
