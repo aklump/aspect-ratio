@@ -11,13 +11,62 @@ namespace AKlump\AspectRatio;
  */
 class AspectRatioTest extends \PHPUnit_Framework_TestCase {
 
+  protected $dependencies;
+
   public function setUp() {
-    $this->dependencies = [];
+    $this->dependencies = [450, 320];
     $this->createObj();
   }
 
   protected function createObj() {
-    $this->obj = new AspectRatio(450, 320);
+    list($width, $height) = $this->dependencies;
+    $this->obj = new AspectRatio($width, $height);
+  }
+
+  public function testReadMeExampleOne() {
+    $this->dependencies = [768, 634];
+    $this->createObj();
+    $ratios = $this->obj->getAllRatios();
+
+    $this->assertRatioRecord([
+      'whole',
+      384,
+      317,
+      768,
+      634.0,
+      0,
+      '0%',
+    ], $ratios[1]);
+
+    $this->assertRatioRecord([
+      'decimal',
+      1.21,
+      1,
+      768,
+      635.0,
+      1.0,
+      '0.157728706625%',
+    ], $ratios[2]);
+
+    $this->assertRatioRecord([
+      'nearby',
+      6,
+      5,
+      768,
+      640.0,
+      6.0,
+      '0.946372239748%',
+    ], $ratios[3]);
+  }
+
+  public function assertRatioRecord($control, $record) {
+    $this->assertSame($record['type'], $control[0]);
+    $this->assertSame($record['ratio_x'], $control[1]);
+    $this->assertSame($record['ratio_y'], $control[2]);
+    $this->assertSame($record['width'], $control[3]);
+    $this->assertSame($record['height'], $control[4]);
+    $this->assertSame($record['difference_y'], $control[5]);
+    $this->assertSame($record['difference_y_percent'], $control[6]);
   }
 
   public function testSetGetTargetWidth() {
@@ -97,19 +146,19 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
     $tests = array();
     $tests[] = array(
       [
-        [6, 5],
-        [16, 13],
-        [24, 19],
-        [8, 7],
-        [4, 3],
+        [6, 5, 6],
+        [16, 13, -10],
+        [24, 19, -26],
+        [8, 7, 38],
+        [4, 3, -58],
       ],
       768,
       634,
     );
     $tests[] = array(
       [
-        [2, 1],
-        [8, 3],
+        [2, 1, 0],
+        [8, 3, -1],
       ],
       8,
       4,
@@ -123,8 +172,14 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
    */
   public function testGetNearbyRatios($ratios, $width, $height) {
     $nearbys = AspectRatio::getNearbyRatios($width, $height, count($ratios));
+
+    // The floats cause problems so we trim them off.
+    $nearbys = array_map(function ($item) {
+      return array_slice($item, 0, 3);
+    }, $nearbys);
     foreach ($ratios as $ratio) {
       $this->assertContains($ratio, $nearbys);
     }
   }
+
 }
