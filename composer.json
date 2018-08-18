@@ -2,7 +2,14 @@
     "name": "aklump\/aspect-ratio",
     "type": "library",
     "description": "Calculate absolute and nearby aspect ratios from a dimension set.",
-    "keywords": ["aspect-ratio", "calculator", "responsive", "images", "scaling", "cli"],
+    "keywords": [
+        "aspect-ratio",
+        "calculator",
+        "responsive",
+        "images",
+        "scaling",
+        "cli"
+    ],
     "homepage": "https:\/\/github.com\/aklump\/aspect-ratio",
     "license": "BSD-3-Clause",
     "autoload": {
@@ -11,7 +18,7 @@
         }
     },
     "require": {
-        "aklump\/loft-lib": "^1.0"
+        "aklump/loft-lib": "^1.0"
     },
     "version": "1.0",
     "bin": [
@@ -21,7 +28,6 @@
         {
             "name": "Aaron Klump",
             "email": "sourcecode@intheloftstudios.com",
-            "homepage": "",
             "role": "developer"
         }
     ]

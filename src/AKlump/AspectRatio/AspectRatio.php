@@ -147,7 +147,7 @@ class AspectRatio {
     }, $ratios);
 
     // Add labels.
-    return array_map(function ($item) {
+    return array_values(array_map(function ($item) {
       return [
         'type' => $item[0],
         'ratio_x' => $item[1],
@@ -156,7 +156,7 @@ class AspectRatio {
         'height' => $item[4],
         'difference_y' => $item[5],
       ];
-    }, $ratios);
+    }, $ratios));
   }
 
   /**
@@ -189,7 +189,7 @@ class AspectRatio {
    *   as separate elements.
    */
   public static function getNearbyRatios($width, $height, $count) {
-    $variant = round($height * self::NICE_MARGIN, 0);
+    $variant = max(1, round($height * self::NICE_MARGIN, 0));
     $candidates = [];
     for ($range_h = $height - $variant; $range_h < $height + $variant; ++$range_h) {
       $ratio = static::getWholeNumberRatio($width, $range_h);
@@ -222,14 +222,18 @@ class AspectRatio {
    *   Width and height as separate elements.
    */
   public static function getWholeNumberRatio($width, $height) {
-    $num = $width / $height;
-    $den = 1;
+    $ratio = $width / $height;
+    $denominator = 1;
     $i = 1;
-    while (($n = $num * $i) != round($num * $i)) {
+    while (($numerator = $ratio * $i) != round($ratio * $i)) {
       ++$i;
     }
+    $numerator = intval($numerator) == floatval($numerator) ? intval($numerator) : $numerator;
+    $numerator = min($width, $numerator);
+    $denominator = $denominator * $i;
+    $denominator = min($height, $denominator);
 
-    return [$n, $den * $i];
+    return [$numerator, $denominator];
   }
 
   /**
