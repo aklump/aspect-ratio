@@ -215,11 +215,15 @@ class AspectRatio {
   /**
    * Get the height from an aspect ratio.
    *
-   * @param $ratio_x
-   * @param $ratio_y
-   * @param $width
+   * @param int $ratio_x
+   *   The width component of the aspect ratio.
+   * @param int $ratio_y
+   *   The height component of the aspect ratio.
+   * @param int|float $width
+   *   The target width.
    *
    * @return float|int
+   *   The target height.
    */
   public static function calculateHeightFromAspectRatio($ratio_x, $ratio_y, $width) {
     return $width * ($ratio_y / $ratio_x);
@@ -360,21 +364,6 @@ class AspectRatio {
    */
   public function getTargetWidth() {
     return $this->targetWidth ? $this->targetWidth : $this->width;
-  }
-
-  /**
-   * Get the target height for conversions.
-   *
-   * @return int
-   *   The target height.
-   */
-  public function getTargetHeight() {
-    $height = $this->height;
-    if ($this->width !== ($target_width = $this->getTargetWidth())) {
-      $height = static::calculateHeightFromAspectRatio($this->width, $this->height, $target_width);
-    }
-
-    return $height;
   }
 
 }
