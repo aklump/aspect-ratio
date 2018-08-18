@@ -74,6 +74,7 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
    */
   public function dataForTestGetWholeNumberRatioProvider() {
     $tests = array();
+    $tests[] = array([463, 100], 4.63, 1);
     $tests[] = array([384, 317], 768, 634);
     $tests[] = array([444, 187], 444, 187);
     $tests[] = array([2, 1], 8, 4);

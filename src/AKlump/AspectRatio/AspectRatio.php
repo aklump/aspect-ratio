@@ -139,8 +139,9 @@ class AspectRatio {
     });
 
     $ratios = array_map(function ($item) use ($original_height) {
-      $difference = round($item[4] - $original_height, 0);
-      $difference = $difference ? $difference : 0;
+      $difference = static::getHeightVariance($item[1], $original_height);
+      array_push($item, $difference);
+      $difference = static::getHeightVarianceRatio($item[1], $original_height);
       array_push($item, $difference);
 
       return $item;
@@ -155,9 +156,19 @@ class AspectRatio {
         'width' => $item[3],
         'height' => $item[4],
         'difference_y' => $item[5],
-        'difference_y_percent' => ($item[5] / $original_height * 100) . '%',
+        'difference_y_percent' => $item[6] * 100 . '%',
       ];
     }, $ratios));
+  }
+
+  private static function getHeightVariance($height, $original_height) {
+    $variance = round($height - $original_height, 0);
+
+    return $variance ? $variance : 0;
+  }
+
+  private static function getHeightVarianceRatio($height, $original_height) {
+    return static::getHeightVariance($height, $original_height) / $original_height;
   }
 
   /**
@@ -212,6 +223,27 @@ class AspectRatio {
   }
 
   /**
+   * Convert dimension from floats to integers.
+   *
+   * @param int|float $width
+   *   The width dimension.
+   * @param int|float $height
+   *   The height dimension.
+   *
+   * @return array
+   *   0 int The new width.
+   *   1 int The new height.
+   */
+  public static function ensureWholeRatio($width, $height = 1) {
+    while (intval($width) != $width || intval($height) != $height) {
+      $width *= 10;
+      $height *= 10;
+    }
+
+    return [intval($width), intval($height)];
+  }
+
+  /**
    * Return the lowest whole number ratio that is exact.
    *
    * @param int|float $width
@@ -223,6 +255,8 @@ class AspectRatio {
    *   Width and height as separate elements.
    */
   public static function getWholeNumberRatio($width, $height) {
+    list($width, $height) = static::ensureWholeRatio($width, $height);
+
     $ratio = $width / $height;
     $denominator = 1;
     $i = 1;
