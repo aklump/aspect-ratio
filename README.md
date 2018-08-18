@@ -85,15 +85,15 @@ If you find this project useful... please consider [making a donation](https://w
 1. To get new dimensions enter existing dimensions and the new width.
 
         $ aspratio 1080x520 --width=320
-        Type        Ratio    Dimensions    Variance    Variance %
-        whole       81:39     320 x 154           0            0%
-        decimal    2.08       320 x 154           0            0%
-        nearby        2       320 x 160           6          3.8%
-        nearby       15:7     320 x 149          -5         -3.1%
-        nearby      24:11     320 x 147          -7         -4.8%
-        nearby       20:9     320 x 144         -10         -6.5%
-        nearby        9:4     320 x 142         -12         -7.7%
-        golden     1.62       320 x 198          43         27.9%
+        Type       Ratio    Dimensions    Variance    Variance %
+        whole      81:39     320 x 154           0            0%
+        decimal     2.08     320 x 154           0            0%
+        nearby         2     320 x 160           6          3.8%
+        nearby      15:7     320 x 149          -5         -3.1%
+        nearby     24:11     320 x 147          -7         -4.8%
+        nearby      20:9     320 x 144         -10         -6.5%
+        nearby       9:4     320 x 142         -12         -7.7%
+        golden      1.62     320 x 198          43         27.9%
 
 ### Inversion
 

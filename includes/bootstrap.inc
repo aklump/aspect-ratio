@@ -30,10 +30,13 @@ if ($cli->hasFlag('v')) {
 }
 
 $args = $cli->getArgs();
-if (empty($args[1])) {
-  throw new \InvalidArgumentException('Argument(s) must be width height in one of these formats: "WIDTH HEIGHT", "WIDTHxHEIGHT" or "WIDTH,HEIGHT"');
+
+// Validate flags.
+if (($diff = array_diff($cli->getFlags(), ['v', 'i']))) {
+  throw new \InvalidArgumentException("Unknown flag: " . reset($diff));
 }
 
+// Validate params.
 if (($diff = array_diff_key($cli->getParams(), array_flip([
   'precision',
   'nearby',
@@ -41,6 +44,10 @@ if (($diff = array_diff_key($cli->getParams(), array_flip([
   'variance',
 ])))) {
   throw new \InvalidArgumentException("Unknown parameter: " . key($diff));
+}
+
+if (empty($args[1])) {
+  throw new \InvalidArgumentException('Argument must be width height in one of these formats: "WIDTHxHEIGHT" or "ASPECT:RATIO"');
 }
 
 $width = $cli->getArg(1);
