@@ -32,7 +32,10 @@ try {
       $color = '';
 
       $item['Type'] = $ratio['type'];
-      $item['Ratio'] = $ratio['ratio_x'] . ':' . $ratio['ratio_y'];
+      $item['Ratio'] = $ratio['ratio_x'];
+      if ($ratio['ratio_y'] != 1) {
+        $item['Ratio'] .= ':' . $ratio['ratio_y'];
+      }
       $item['Dimensions'] = round($ratio['width'], 0) . ' x ' . round($ratio['height'], 0);
       $item['Variance'] = $ratio['difference_y'];
       $item['Variance %'] = round(trim($ratio['difference_y_percent'], '%'), 1) . '%';
