@@ -50,6 +50,8 @@ if ($cli->hasFlag('i')) {
   list($width, $height) = [$height, $width];
 }
 
+$height = is_null($height) ? 1 : $height;
+
 $aspect_ratio = new AspectRatio($width, $height, $cli->getParam('precision'), $cli->getParam('nearby'));
 if ($cli->hasParam('width')) {
   $aspect_ratio->setTargetWidth($cli->getParam('width'));
