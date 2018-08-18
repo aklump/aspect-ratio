@@ -147,7 +147,7 @@ class AspectRatio {
     }, $ratios);
 
     // Add labels.
-    return array_values(array_map(function ($item) {
+    return array_values(array_map(function ($item) use ($original_height) {
       return [
         'type' => $item[0],
         'ratio_x' => $item[1],
@@ -155,6 +155,7 @@ class AspectRatio {
         'width' => $item[3],
         'height' => $item[4],
         'difference_y' => $item[5],
+        'difference_y_percent' => ($item[5] / $original_height * 100) . '%',
       ];
     }, $ratios));
   }

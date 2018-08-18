@@ -3,10 +3,7 @@
 
 /**
  * @file
- *
- * This is the CLI controller for aspect_ratio
- *
- * usage: ratio 1665 607
+ * This is the CLI controller for aspect_ratio.
  */
 
 namespace AKlump\AspectRatio;
@@ -34,10 +31,11 @@ try {
 
       $color = '';
 
-      $item['type'] = $ratio['type'];
-      $item['ratio'] = $ratio['ratio_x'] . ':' . $ratio['ratio_y'];
-      $item['dimensions'] = $ratio['width'] . ' x ' . $ratio['height'];
-      $item['variance'] = $ratio['difference_y'];
+      $item['Type'] = $ratio['type'];
+      $item['Ratio'] = $ratio['ratio_x'] . ':' . $ratio['ratio_y'];
+      $item['Dimensions'] = $ratio['width'] . ' x ' . $ratio['height'];
+      $item['Variance'] = $ratio['difference_y'];
+      $item['Variance %'] = round(trim($ratio['difference_y_percent'], '%'), 1) . '%';
 
       if (!$nearby && $ratio['type'] === 'nearby') {
         $nearby = TRUE;
@@ -60,7 +58,7 @@ try {
 
     // Setup alignment for all columns, defaults to right.
     $alignment = [
-      'type' => 'left',
+      'Type' => 'left',
     ];
     $alignment += array_fill_keys($cell_keys, 'right');
 
