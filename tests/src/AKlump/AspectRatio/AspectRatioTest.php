@@ -37,6 +37,18 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
     $this->assertArrayHasKey('width', $ratios[0]);
     $this->assertArrayHasKey('height', $ratios[0]);
     $this->assertArrayHasKey('difference_y', $ratios[0]);
+    $this->assertArrayHasKey('difference_y_percent', $ratios[0]);
+
+    // Format of values.
+    foreach ($ratios as $ratio) {
+      $this->assertInternalType('string', $ratio['type']);
+      $this->assertRegExp('/^\d+(\.\d+)*$/', strval($ratio['ratio_x']));
+      $this->assertRegExp('/^\d+(\.\d+)*$/', strval($ratio['ratio_y']));
+      $this->assertRegExp('/^\d+(\.\d+)*$/', strval($ratio['width']));
+      $this->assertRegExp('/^\d+(\.\d+)*$/', strval($ratio['height']));
+      $this->assertRegExp('/^-?\d+(\.\d+)*$/', strval($ratio['difference_y']));
+      $this->assertRegExp('/^-?\d+(\.\d+)*%$/', $ratio['difference_y_percent']);
+    }
   }
 
   /**
