@@ -33,7 +33,7 @@ try {
 
       $item['Type'] = $ratio['type'];
       $item['Ratio'] = $ratio['ratio_x'];
-      if ($ratio['ratio_y'] != 1) {
+      if ($ratio['ratio_y'] != 1 || strstr($ratio['ratio_x'], '.') === FALSE) {
         $item['Ratio'] .= ':' . $ratio['ratio_y'];
       }
       $item['Dimensions'] = round($ratio['width'], 0) . ' x ' . round($ratio['height'], 0);
