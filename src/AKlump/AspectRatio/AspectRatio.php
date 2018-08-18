@@ -23,7 +23,12 @@ class AspectRatio {
    *
    * @var float
    */
-  const NICE_MARGIN = .10;
+  const NEAR_MARGIN = .1;
+
+  /**
+   * The maximium variance to allow for nearby ratios.
+   */
+  const MAX_NEAR_VARIANCE_RATIO = .20;
 
   /**
    * The default precision for decimal.
@@ -75,6 +80,13 @@ class AspectRatio {
   protected $targetWidth;
 
   /**
+   * The max near variance ratio, when overridden.
+   *
+   * @var float|int|null
+   */
+  protected $maxNearVarianceRatio;
+
+  /**
    * AspectRatio constructor.
    *
    * @param int|float $width
@@ -85,12 +97,21 @@ class AspectRatio {
    *   The decimal precision.
    * @param int $total_near
    *   The total number of near ratios to calculate.
+   * @param int $max_near_variance_ratio
+   *   The max number variance ratio.
    */
-  public function __construct($width, $height, $precision = NULL, $total_near = NULL) {
+  public function __construct(
+    $width,
+    $height,
+    $precision = NULL,
+    $total_near = NULL,
+    $max_near_variance_ratio = NULL
+  ) {
     $this->width = $width;
     $this->height = $height;
-    $this->precision = isset($precision) ? $precision : self::PRECISION;
-    $this->totalNear = isset($total_near) ? $total_near : self::TOTAL_NEAR;
+    $this->precision = isset($precision) ? $precision : static::PRECISION;
+    $this->totalNear = isset($total_near) ? $total_near : static::TOTAL_NEAR;
+    $this->maxNearVarianceRatio = isset($max_near_variance_ratio) ? $max_near_variance_ratio : static::MAX_NEAR_VARIANCE_RATIO;
   }
 
   /**
@@ -110,7 +131,7 @@ class AspectRatio {
 
     $ratios[] = [
       'golden',
-      round(self::GOLDEN, $this->precision),
+      round(static::GOLDEN, $this->precision),
       1,
     ];
 
@@ -123,7 +144,6 @@ class AspectRatio {
 
       return $item;
     }, $ratios);
-
 
     $ratios = array_merge($ratios, array_map(function ($item) {
       array_unshift($item, 'nearby');
@@ -143,7 +163,7 @@ class AspectRatio {
 
     // Sort the ratios from closest to original dimensions first.
     uasort($ratios, function ($a, $b) {
-      return abs($a[3]) - abs($b[3]);
+      return abs($a[4]) - abs($b[4]);
     });
 
     // Add labels.
@@ -160,14 +180,49 @@ class AspectRatio {
     }, $ratios));
   }
 
+  /**
+   * Return the height variance as a value..
+   *
+   * @param int $height
+   *   The calculated height.
+   * @param int $original_height
+   *   The original height against which to measure variance.
+   *
+   * @return float|int
+   *   The variance as a value.
+   */
   private static function getHeightVariance($height, $original_height) {
     $variance = round($height - $original_height, 0);
 
     return $variance ? $variance : 0;
   }
 
+  /**
+   * Return the height variance ratio.
+   *
+   * @param int $height
+   *   The calculated height.
+   * @param int $original_height
+   *   The original height against which to measure variance.
+   *
+   * @return float|int
+   *   The variance as a ratio.
+   */
   private static function getHeightVarianceRatio($height, $original_height) {
     return static::getHeightVariance($height, $original_height) / $original_height;
+  }
+
+  /**
+   * Get the height from an aspect ratio.
+   *
+   * @param $ratio_x
+   * @param $ratio_y
+   * @param $width
+   *
+   * @return float|int
+   */
+  public static function calculateHeightFromAspectRatio($ratio_x, $ratio_y, $width) {
+    return $width * ($ratio_y / $ratio_x);
   }
 
   /**
@@ -194,6 +249,8 @@ class AspectRatio {
    *   The height.
    * @param int $count
    *   The total number of nearby ratios to return.
+   * @param int $max_variance_ratio
+   *   The maximum variance ratio to allow.
    *
    * @return array
    *   An array of ratios, where each element is an array with width and height
@@ -298,6 +355,21 @@ class AspectRatio {
    */
   public function getTargetWidth() {
     return $this->targetWidth ? $this->targetWidth : $this->width;
+  }
+
+  /**
+   * Get the target height for conversions.
+   *
+   * @return int
+   *   The target height.
+   */
+  public function getTargetHeight() {
+    $height = $this->height;
+    if ($this->width !== ($target_width = $this->getTargetWidth())) {
+      $height = static::calculateHeightFromAspectRatio($this->width, $this->height, $target_width);
+    }
+
+    return $height;
   }
 
 }

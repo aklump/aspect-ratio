@@ -31,8 +31,7 @@ if ($cli->hasFlag('v')) {
 
 $args = $cli->getArgs();
 if (empty($args[1])) {
-  print Color::wrap('red', 'Argument(s) must be width height in one of these formats: "WIDTH HEIGHT", "WIDTHxHEIGHT" or "WIDTH,HEIGHT"') . PHP_EOL;
-  exit(1);
+  throw new \InvalidArgumentException('Argument(s) must be width height in one of these formats: "WIDTH HEIGHT", "WIDTHxHEIGHT" or "WIDTH,HEIGHT"');
 }
 
 $width = $cli->getArg(1);
@@ -50,9 +49,29 @@ if ($cli->hasFlag('i')) {
   list($width, $height) = [$height, $width];
 }
 
-$height = is_null($height) ? 1 : $height;
+if (is_null($height)) {
+  throw new \InvalidArgumentException("You must enter a height.");
+}
 
-$aspect_ratio = new AspectRatio($width, $height, $cli->getParam('precision'), $cli->getParam('nearby'));
+if (($max_variance_ratio = $cli->getParam('variance'))) {
+  // We get a percentage.
+  if (substr($max_variance_ratio, -1) === '%') {
+    $max_variance_ratio = floatval($max_variance_ratio) / 100;
+  }
+  // We get an absolute.
+  else {
+    $max_variance_ratio = $max_variance_ratio / $height;
+  }
+}
+
+
+$aspect_ratio = new AspectRatio(
+  $width,
+  $height,
+  $cli->getParam('precision'),
+  $cli->getParam('nearby'),
+  $max_variance_ratio
+);
 if ($cli->hasParam('width')) {
   $aspect_ratio->setTargetWidth($cli->getParam('width'));
 }

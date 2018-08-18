@@ -29,7 +29,7 @@ To check this you must open _~/.bash_profile_ (or _~/.bashrc_); you're looking f
                                  
     export PATH=~/.composer/vendor/bin:$PATH
 
-## Usage
+## Quick Start
 
 1. To determine the aspect ratios of a dimension set type any of the following in your terminal:
         
@@ -37,7 +37,7 @@ To check this you must open _~/.bash_profile_ (or _~/.bashrc_); you're looking f
         $ aspratio 768 634
         $ aspratio 768,634
         
-1. Use the `--precision={number}` to control the rounding precision.  Use the `--nearby={number}` to control the total number of nearby ratios to calculate.
+1. Use the `--precision={number}` to control the rounding precision.
 
         $ ./aspratio 444x187 --nearby=2 --precision=4
         Type          Ratio    Dimensions    Variance    Variance %
@@ -54,11 +54,31 @@ To check this you must open _~/.bash_profile_ (or _~/.bashrc_); you're looking f
         $ ./aspratio 768x512 -i --json
         [{"type":"original","ratio_x":512,"ratio_y":768,"width":512,"height":768,"difference_y":0,"difference_y_percent":"0%"},{"type":"whole","ratio_x":2,"ratio_y":3,"width":512,"height":768,"difference_y":0,"difference_y_percent":"0%"},{"type":"nearby","ratio_x":2,"ratio_y":3,"width":512,"height":768,"difference_y":0,"difference_y_percent":"0%"},{"type":"decimal","ratio_x":0.67000000000000003996802888650563545525074005126953125,"ratio_y":1,"width":512,"height":764,"difference_y":-4,"difference_y_percent":"-0.520833333333%"},{"type":"nearby","ratio_x":16,"ratio_y":25,"width":512,"height":800,"difference_y":32,"difference_y_percent":"4.16666666667%"},{"type":"nearby","ratio_x":16,"ratio_y":23,"width":512,"height":736,"difference_y":-32,"difference_y_percent":"-4.16666666667%"},{"type":"nearby","ratio_x":8,"ratio_y":13,"width":512,"height":832,"difference_y":64,"difference_y_percent":"8.33333333333%"},{"type":"nearby","ratio_x":8,"ratio_y":11,"width":512,"height":704,"difference_y":-64,"difference_y_percent":"-8.33333333333%"},{"type":"golden","ratio_x":1.62000000000000010658141036401502788066864013671875,"ratio_y":1,"width":512,"height":316,"difference_y":-452,"difference_y_percent":"-58.8541666667%"}]
 
-### Get New Dimensions, a.k.a. Scaling
+## Contributing
 
-1. To get a new dimension based on a dimension set do the following:
+If you find this project useful... please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4E5KZHDQCEUV8&item_name=Gratitude%20for%20aklump%2Faspect-ratio).
 
-        $ ./aspratio 1080 520 --width=320
+## Usage
+
+### Determine height based on aspect ratio and width
+
+1. Determine the height by entering aspect ratio and width.
+1. Use the dimensions listed as _original_
+
+        $ ./aspratio 16:9 --width=1080
+        Type         Ratio    Dimensions    Variance    Variance %
+        original      16:9    1080 x 608           1          0.2%
+        whole         16:9    1080 x 608           1          0.2%
+        decimal     1.78:1    1080 x 607          -1         -0.2%
+        nearby         2:1    1080 x 540          -1        -11.1%
+        nearby         8:5    1080 x 675           1         11.1%
+        golden      1.62:1    1080 x 667          60          9.9%
+
+### Scale dimensions based on Aspect Ratio
+
+1. To get new dimensions enter existing dimensions and the new width.
+
+        $ ./aspratio 1080x520 --width=320
         Type        Ratio    Dimensions    Variance    Variance %
         whole       81:39     320 x 154           0            0%
         decimal    2.08:1     320 x 154           0            0%
@@ -97,6 +117,81 @@ To check this you must open _~/.bash_profile_ (or _~/.bashrc_); you're looking f
         golden     1.62:1     512 x 316        -452        -58.9%
 
 
-## Contributing
+### Fine Tuning
 
-If you find this project useful... please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4E5KZHDQCEUV8&item_name=Gratitude%20for%20aklump%2Faspect-ratio).
+1. Use `--nearby` and `--variance` to fine tune the nearby calculations:
+1. `--nearby` limits the maximum number of nearby values calculated.
+1. `--variance` sets the maximum variance allowed.
+
+        $ ./aspratio 768x634  --variance=50% --nearby=10
+        Type         Ratio    Dimensions    Variance    Variance %
+        whole      384:317     768 x 634           0            0%
+        decimal     1.21:1     768 x 635           1          0.2%
+        nearby         6:5     768 x 640           6          0.9%
+        nearby         8:7     768 x 672          38            6%
+        nearby         4:3     768 x 576         -58         -9.1%
+        nearby         3:2     768 x 512        -122        -19.2%
+        nearby         1:1     768 x 768         134         21.1%
+        nearby         8:5     768 x 480        -154        -24.3%
+        golden      1.62:1     768 x 474        -160        -25.2%
+        nearby         8:9     768 x 864         230         36.3%
+        nearby         2:1     768 x 384        -250        -39.4%
+        nearby         6:7     768 x 896         262         41.3%
+        nearby        12:5     768 x 320        -314        -49.5%
+        
+        imac-aaron:aspect_ratio aklump$ ./aspratio 768x634  --variance=50% --nearby=5
+        Type         Ratio    Dimensions    Variance    Variance %
+        whole      384:317     768 x 634           0            0%
+        decimal     1.21:1     768 x 635           1          0.2%
+        nearby         6:5     768 x 640           6          0.9%
+        nearby         4:3     768 x 576         -58         -9.1%
+        nearby         3:2     768 x 512        -122        -19.2%
+        nearby         1:1     768 x 768         134         21.1%
+        golden      1.62:1     768 x 474        -160        -25.2%
+        nearby         2:1     768 x 384        -250        -39.4%
+        
+        imac-aaron:aspect_ratio aklump$ ./aspratio 768x634  --variance=10% --nearby=5
+        Type         Ratio    Dimensions    Variance    Variance %
+        whole      384:317     768 x 634           0            0%
+        decimal     1.21:1     768 x 635           1          0.2%
+        nearby         6:5     768 x 640           6          0.9%
+        nearby       16:13     768 x 624         -10         -1.6%
+        nearby       24:19     768 x 608         -26         -4.1%
+        nearby         8:7     768 x 672          38            6%
+        nearby         4:3     768 x 576         -58         -9.1%
+        golden      1.62:1     768 x 474        -160        -25.2%
+
+1. `--variance` may also be entered as a maximum difference in height:
+
+        $ ./aspratio 768x634  --variance=20 --nearby=5
+        Type         Ratio    Dimensions    Variance    Variance %
+        whole      384:317     768 x 634           0            0%
+        decimal     1.21:1     768 x 635           1          0.2%
+        nearby       64:53     768 x 636           2          0.3%
+        nearby         6:5     768 x 640           6          0.9%
+        nearby       16:13     768 x 624         -10         -1.6%
+        nearby       32:27     768 x 648          14          2.2%
+        nearby       96:77     768 x 616         -18         -2.8%
+        golden      1.62:1     768 x 474        -160        -25.2%
+        
+        imac-aaron:aspect_ratio aklump$ ./aspratio 768x634  --variance=100 --nearby=5
+        Type         Ratio    Dimensions    Variance    Variance %
+        whole      384:317     768 x 634           0            0%
+        decimal     1.21:1     768 x 635           1          0.2%
+        nearby         6:5     768 x 640           6          0.9%
+        nearby       16:13     768 x 624         -10         -1.6%
+        nearby         8:7     768 x 672          38            6%
+        nearby         4:3     768 x 576         -58         -9.1%
+        nearby       12:11     768 x 704          70           11%
+        golden      1.62:1     768 x 474        -160        -25.2%
+        
+        imac-aaron:aspect_ratio aklump$ ./aspratio 768x634  --variance=5 --nearby=5
+        Type         Ratio    Dimensions    Variance    Variance %
+        whole      384:317     768 x 634           0            0%
+        decimal     1.21:1     768 x 635           1          0.2%
+        nearby     256:211     768 x 633          -1         -0.2%
+        nearby       64:53     768 x 636           2          0.3%
+        nearby       96:79     768 x 632          -2         -0.3%
+        nearby     128:105     768 x 630          -4         -0.6%
+        nearby     256:213     768 x 639           5          0.8%
+        golden      1.62:1     768 x 474        -160        -25.2%
