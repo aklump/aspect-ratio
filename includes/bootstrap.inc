@@ -34,21 +34,25 @@ if (empty($args[1])) {
   throw new \InvalidArgumentException('Argument(s) must be width height in one of these formats: "WIDTH HEIGHT", "WIDTHxHEIGHT" or "WIDTH,HEIGHT"');
 }
 
+if (($diff = array_diff_key($cli->getParams(), array_flip([
+  'precision',
+  'nearby',
+  'width',
+  'variance',
+])))) {
+  throw new \InvalidArgumentException("Unknown parameter: " . key($diff));
+}
+
 $width = $cli->getArg(1);
-$height = $cli->getArg(2);
 if (strpos($width, ':') !== FALSE) {
   list($width, $height) = explode(':', $width);
 }
 if (strpos($width, 'x') !== FALSE) {
   list($width, $height) = explode('x', $width);
 }
-if (strpos($width, ',') !== FALSE) {
-  list($width, $height) = explode(',', $width);
-}
 if ($cli->hasFlag('i')) {
   list($width, $height) = [$height, $width];
 }
-
 if (is_null($height)) {
   throw new \InvalidArgumentException("You must enter a height.");
 }
