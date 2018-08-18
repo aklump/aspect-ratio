@@ -137,9 +137,7 @@ class AspectRatio {
 
     // Add in variances.
     $ratios = array_map(function ($item) use ($original_height) {
-      $ratio = $this->getDecimalRatio($item[1], $item[2]);
-      $calculated_height = round($this->getTargetWidth() / $ratio, 0);
-      array_push($item, static::getHeightVariance($calculated_height, $original_height));
+      $calculated_height = static::calculateHeightFromAspectRatio($item[1], $item[2], $this->getTargetWidth());
       array_push($item, static::getHeightVarianceRatio($calculated_height, $original_height));
 
       return $item;
@@ -149,21 +147,23 @@ class AspectRatio {
       array_unshift($item, 'nearby');
 
       return $item;
-    }, $this->getNearbyRatios($this->width, $this->height, $this->totalNear)));
+    }, $this->getNearbyRatios($this->width, $this->height, $this->totalNear, $this->maxNearVarianceRatio)));
 
     // Add in target dimensions.
-    $ratios = array_map(function ($item) {
-      $ratio = $this->getDecimalRatio($item[1], $item[2]);
-
+    $ratios = array_map(function ($item) use ($original_height) {
       return array_merge($item, [
-        $this->getTargetWidth() * 1,
-        round($this->getTargetWidth() / $ratio, 0),
+        ($width = $this->getTargetWidth() * 1),
+        ($height = static::calculateHeightFromAspectRatio($item[1], $item[2], $width)),
+        static::getHeightVariance($height, $original_height),
       ]);
     }, $ratios);
 
-    // Sort the ratios from closest to original dimensions first.
+    // Sort the ratios from closest to original dimensions first, based on percentage.
     uasort($ratios, function ($a, $b) {
-      return abs($a[4]) - abs($b[4]);
+      $a = abs($a[3]) * 100;
+      $b = abs($b[3]) * 100;
+
+      return $a - $b;
     });
 
     // Add labels.
@@ -172,10 +172,10 @@ class AspectRatio {
         'type' => $item[0],
         'ratio_x' => $item[1],
         'ratio_y' => $item[2],
-        'width' => $item[5],
-        'height' => $item[6],
-        'difference_y' => $item[3],
-        'difference_y_percent' => $item[4] * 100 . '%',
+        'width' => $item[4],
+        'height' => $item[5],
+        'difference_y' => $item[6],
+        'difference_y_percent' => $item[3] * 100 . '%',
       ];
     }, $ratios));
   }
@@ -257,14 +257,19 @@ class AspectRatio {
    *   as separate elements.  These are ordered based on the first number of
    *   the ratio lowest to highest and not by the variance.
    */
-  public static function getNearbyRatios($width, $height, $count) {
-    $variant = max(1, round($height * self::NICE_MARGIN, 0));
+  public static function getNearbyRatios($width, $height, $count, $max_variance_ratio) {
+    $variant = max(1, round($height * static::NEAR_MARGIN, 0));
     $candidates = [];
     for ($candidate_height = $height - $variant; $candidate_height < $height + $variant; ++$candidate_height) {
+      if (!$candidate_height) {
+        continue;
+      }
       $candidate = static::getWholeNumberRatio($width, $candidate_height);
-      array_push($candidate, static::getHeightVariance($candidate_height, $height));
-      array_push($candidate, static::getHeightVarianceRatio($candidate_height, $height));
-      $candidates[] = $candidate;
+      $variance_ratio = static::getHeightVarianceRatio($candidate_height, $height);
+      if (abs($variance_ratio) <= $max_variance_ratio) {
+        array_push($candidate, $variance_ratio);
+        $candidates[] = $candidate;
+      }
     }
     uasort($candidates, function ($a, $b) {
       if ($a[0] !== $b[0]) {

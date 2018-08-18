@@ -14,17 +14,85 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
   protected $dependencies;
 
   public function setUp() {
-    $this->dependencies = [450, 320];
+    $this->dependencies = [450, 320, 2, 10, .2];
     $this->createObj();
   }
 
   protected function createObj() {
-    list($width, $height) = $this->dependencies;
-    $this->obj = new AspectRatio($width, $height);
+    list($width, $height, $precision, $total_near, $max_near_ratio) = $this->dependencies;
+    $this->obj = new AspectRatio($width, $height, $precision, $total_near, $max_near_ratio);
+  }
+
+  /**
+   * Provides data for testNearbyVarianceIsCorrectComparedToGolden.
+   */
+  public function dataForTestNearbyVarianceIsCorrectComparedToGoldenProvider() {
+    $tests = array();
+    $tests[] = array(
+      [
+        'height' => 540,
+        'difference_y' => -68,
+      ],
+      ['nearby', 2, 1],
+    );
+    $tests[] = array(
+      [
+        'height' => 607.5,
+        'difference_y' => 0,
+      ],
+      ['original', 16, 9],
+    );
+
+    return $tests;
+  }
+
+  /**
+   * @dataProvider dataForTestNearbyVarianceIsCorrectComparedToGoldenProvider
+   */
+  public function testNearbyVarianceIsCorrectComparedToGolden($control, $needle) {
+    $this->dependencies[0] = 16;
+    $this->dependencies[1] = 9;
+    $this->createObj();
+    $this->obj->setTargetWidth(1080);
+    $ratios = $this->obj->getAllRatios();
+    $this->assertRatioData($control, $needle, $ratios);
+  }
+
+  public function assertRatioData($control, $needle, $ratios) {
+    $item = array_filter($ratios, function ($item) use ($needle) {
+      return $item['type'] === $needle[0] && $item['ratio_x'] == $needle[1] && $item['ratio_y'] == $needle[2];
+    });
+    $this->assertCount(1, $item);
+    $item = reset($item);
+    foreach ($control as $key => $value) {
+      $this->assertEquals($control[$key], $item[$key]);
+    }
+  }
+
+  /**
+   * Provides data for testCalculateHeightFromAspectRatio.
+   */
+  public function dataForTestCalculateHeightFromAspectRatioProvider() {
+    $tests = array();
+    $tests[] = array(
+      607.5,
+      1080,
+      16,
+      9,
+    );
+
+    return $tests;
+  }
+
+  /**
+   * @dataProvider dataForTestCalculateHeightFromAspectRatioProvider
+   */
+  public function testCalculateHeightFromAspectRatio($height, $width, $ratio_x, $ratio_y) {
+    $this->assertSame($height, AspectRatio::calculateHeightFromAspectRatio($ratio_x, $ratio_y, $width));
   }
 
   public function testReadMeExampleOne() {
-    $this->dependencies = [768, 634];
+    $this->dependencies = [768, 634, 2, 10, .2];
     $this->createObj();
     $ratios = $this->obj->getAllRatios();
 
@@ -33,7 +101,7 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
       384,
       317,
       768,
-      634.0,
+      634,
       0,
       '0%',
     ], $ratios[1]);
@@ -43,7 +111,7 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
       1.21,
       1,
       768,
-      635.0,
+      635,
       1.0,
       '0.157728706625%',
     ], $ratios[2]);
@@ -53,20 +121,20 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
       6,
       5,
       768,
-      640.0,
+      640,
       6.0,
       '0.946372239748%',
     ], $ratios[3]);
   }
 
   public function assertRatioRecord($control, $record) {
-    $this->assertSame($record['type'], $control[0]);
-    $this->assertSame($record['ratio_x'], $control[1]);
-    $this->assertSame($record['ratio_y'], $control[2]);
-    $this->assertSame($record['width'], $control[3]);
-    $this->assertSame($record['height'], $control[4]);
-    $this->assertSame($record['difference_y'], $control[5]);
-    $this->assertSame($record['difference_y_percent'], $control[6]);
+    $this->assertEquals($record['type'], $control[0]);
+    $this->assertEquals($record['ratio_x'], $control[1]);
+    $this->assertEquals($record['ratio_y'], $control[2]);
+    $this->assertEquals(round($record['width'], 0), $control[3]);
+    $this->assertEquals(round($record['height'], 0), $control[4]);
+    $this->assertEquals($record['difference_y'], $control[5]);
+    $this->assertEquals($record['difference_y_percent'], $control[6]);
   }
 
   public function testSetGetTargetWidth() {
@@ -146,19 +214,19 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
     $tests = array();
     $tests[] = array(
       [
-        [6, 5, 6],
-        [16, 13, -10],
-        [24, 19, -26],
-        [8, 7, 38],
-        [4, 3, -58],
+        [6, 5],
+        [16, 13],
+        [24, 19],
+        [8, 7],
+        [4, 3],
       ],
       768,
       634,
     );
     $tests[] = array(
       [
-        [2, 1, 0],
-        [8, 3, -1],
+        [2, 1],
+        [8, 3],
       ],
       8,
       4,
@@ -171,12 +239,14 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
    * @dataProvider dataForTestGetNearbyRatiosProvider
    */
   public function testGetNearbyRatios($ratios, $width, $height) {
-    $nearbys = AspectRatio::getNearbyRatios($width, $height, count($ratios));
+    $nearbys = AspectRatio::getNearbyRatios($width, $height, count($ratios), .25);
 
     // The floats cause problems so we trim them off.
     $nearbys = array_map(function ($item) {
-      return array_slice($item, 0, 3);
+      array_pop($item);
+      return $item;
     }, $nearbys);
+
     foreach ($ratios as $ratio) {
       $this->assertContains($ratio, $nearbys);
     }
