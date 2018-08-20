@@ -17,9 +17,9 @@ class AspectRatio {
   /**
    * The nice aspect ratio margin.
    *
-   * A number between 0 and 1 indicating the portion of the input height to use
+   * A number between 0 and 1 indicating the percentage of dimension to use
    * when determining the closest nice ratio.  The lower the number the faster
-   * the processing.  Too low and you won't achieve the nicest ratio.
+   * the processing.  Too low and you won't achieve the nicest ratios.
    *
    * @var float
    */
@@ -265,7 +265,7 @@ class AspectRatio {
 
     for ($candidate_width = $width - $width_variant; $candidate_width <= $width + $width_variant; ++$candidate_width) {
       for ($candidate_height = $height - $height_variant; $candidate_height <= $height + $height_variant; ++$candidate_height) {
-        if (!$candidate_height) {
+        if (!$candidate_height || !$candidate_width) {
           continue;
         }
         $candidate_ratio = static::getWholeNumberRatio($candidate_width, $candidate_height);
