@@ -35,7 +35,7 @@ class AspectRatio {
    *
    * @var int
    */
-  const PRECISION = 2;
+  const PRECISION = 3;
 
   /**
    * The total number of near ratios to return.
