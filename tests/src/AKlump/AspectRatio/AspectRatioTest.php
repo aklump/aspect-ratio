@@ -24,48 +24,36 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
   }
 
   /**
-   * @dataProvider dataForTestNearbyVarianceIsCorrectComparedToGoldenProvider
-   */
-  public function testNearbyVarianceIsCorrectComparedToGolden($control, $needle) {
-    $this->dependencies[0] = 16;
-    $this->dependencies[1] = 9;
-    $this->createObj();
-    $this->obj->setTargetWidth(1080);
-    $ratios = $this->obj->getAllRatios();
-    $this->assertRatioData($control, $needle, $ratios);
-  }
-
-  /**
    * Provides data for testGetNearbyRatios.
    */
   public function dataForTestGetNearbyRatiosProvider() {
     $tests = array();
     $tests[] = array(
       [
-        [2, 1],
-        [3, 1],
-      ],
-      8,
-      4,
-    );
-    $tests[] = array(
-      [
-        [2, 1],
-        [3, 1],
-      ],
-      8,
-      4,
-    );
-    $tests[] = array(
-      [
+        [4, 3],
         [5, 4],
         [6, 5],
         [7, 6],
         [8, 7],
-        [9, 8],
       ],
       768,
       634,
+    );
+    $tests[] = array(
+      [
+        [2, 1],
+        [3, 1],
+      ],
+      8,
+      4,
+    );
+    $tests[] = array(
+      [
+        [2, 1],
+        [3, 1],
+      ],
+      8,
+      4,
     );
 
     return $tests;
@@ -87,6 +75,18 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
     foreach ($ratios as $ratio) {
       $this->assertContains($ratio, $nearbys);
     }
+  }
+
+  /**
+   * @dataProvider dataForTestNearbyVarianceIsCorrectComparedToGoldenProvider
+   */
+  public function testNearbyVarianceIsCorrectComparedToGolden($control, $needle) {
+    $this->dependencies[0] = 16;
+    $this->dependencies[1] = 9;
+    $this->createObj();
+    $this->obj->setTargetWidth(1080);
+    $ratios = $this->obj->getAllRatios();
+    $this->assertRatioData($control, $needle, $ratios);
   }
 
   /**
