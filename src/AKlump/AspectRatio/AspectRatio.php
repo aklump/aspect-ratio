@@ -259,19 +259,21 @@ class AspectRatio {
    *   the ratio lowest to highest and not by the variance.
    */
   public static function getNearbyRatios($width, $height, $count, $max_variance_ratio, $target_width, $target_height) {
-    $height_variant = max(1, round($height * static::NEAR_MARGIN, 0));
     $width_variant = max(1, round($width * static::NEAR_MARGIN, 0));
     $candidates = [];
-
     for ($candidate_width = $width - $width_variant; $candidate_width <= $width + $width_variant; ++$candidate_width) {
+      if ($candidate_width < 1) {
+        continue;
+      }
+      $height_variant = max(1, round($height * static::NEAR_MARGIN, 0));
       for ($candidate_height = $height - $height_variant; $candidate_height <= $height + $height_variant; ++$candidate_height) {
-        if (!$candidate_height || !$candidate_width) {
+        if ($candidate_height < 1) {
           continue;
         }
-        $candidate_ratio = static::getWholeNumberRatio($candidate_width, $candidate_height);
         $computed_height = static::calculateHeightFromAspectRatio($candidate_width, $candidate_height, $target_width);
         $variance_ratio = static::getHeightVarianceRatio($computed_height, $target_height);
         if (abs($variance_ratio) <= $max_variance_ratio) {
+          $candidate_ratio = static::getWholeNumberRatio($candidate_width, $candidate_height);
           $hash = implode(':', $candidate_ratio);
           if (!isset($candidates[$hash])) {
             array_push($candidate_ratio, $variance_ratio);
@@ -281,6 +283,7 @@ class AspectRatio {
       }
     }
 
+    // Sort by width component of aspect ratio, low to high.
     uasort($candidates, function ($a, $b) {
       if ($a[0] !== $b[0]) {
         return $a[0] - $b[0];
