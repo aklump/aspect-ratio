@@ -42,6 +42,7 @@ if (($diff = array_diff_key($cli->getParams(), array_flip([
   'nearby',
   'width',
   'variance',
+  'json',
 ])))) {
   throw new \InvalidArgumentException("Unknown parameter: " . key($diff));
 }
