@@ -24,6 +24,72 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
   }
 
   /**
+   * @dataProvider dataForTestNearbyVarianceIsCorrectComparedToGoldenProvider
+   */
+  public function testNearbyVarianceIsCorrectComparedToGolden($control, $needle) {
+    $this->dependencies[0] = 16;
+    $this->dependencies[1] = 9;
+    $this->createObj();
+    $this->obj->setTargetWidth(1080);
+    $ratios = $this->obj->getAllRatios();
+    $this->assertRatioData($control, $needle, $ratios);
+  }
+
+  /**
+   * Provides data for testGetNearbyRatios.
+   */
+  public function dataForTestGetNearbyRatiosProvider() {
+    $tests = array();
+    $tests[] = array(
+      [
+        [2, 1],
+        [3, 1],
+      ],
+      8,
+      4,
+    );
+    $tests[] = array(
+      [
+        [2, 1],
+        [3, 1],
+      ],
+      8,
+      4,
+    );
+    $tests[] = array(
+      [
+        [5, 4],
+        [6, 5],
+        [7, 6],
+        [8, 7],
+        [9, 8],
+      ],
+      768,
+      634,
+    );
+
+    return $tests;
+  }
+
+  /**
+   * @dataProvider dataForTestGetNearbyRatiosProvider
+   */
+  public function testGetNearbyRatios($ratios, $width, $height) {
+    $nearbys = AspectRatio::getNearbyRatios($width, $height, count($ratios), .25, $width, $height);
+
+    // The floats cause problems so we trim them off.
+    $nearbys = array_map(function ($item) {
+      array_pop($item);
+
+      return $item;
+    }, $nearbys);
+
+    foreach ($ratios as $ratio) {
+      $this->assertContains($ratio, $nearbys);
+    }
+  }
+
+  /**
    * Provides data for testNearbyVarianceIsCorrectComparedToGolden.
    */
   public function dataForTestNearbyVarianceIsCorrectComparedToGoldenProvider() {
@@ -44,18 +110,6 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
     );
 
     return $tests;
-  }
-
-  /**
-   * @dataProvider dataForTestNearbyVarianceIsCorrectComparedToGoldenProvider
-   */
-  public function testNearbyVarianceIsCorrectComparedToGolden($control, $needle) {
-    $this->dependencies[0] = 16;
-    $this->dependencies[1] = 9;
-    $this->createObj();
-    $this->obj->setTargetWidth(1080);
-    $ratios = $this->obj->getAllRatios();
-    $this->assertRatioData($control, $needle, $ratios);
   }
 
   public function assertRatioData($control, $needle, $ratios) {
@@ -205,51 +259,6 @@ class AspectRatioTest extends \PHPUnit_Framework_TestCase {
    */
   public function testGetWholeNumberRatio($ratio, $width, $height) {
     $this->assertSame($ratio, AspectRatio::getWholeNumberRatio($width, $height));
-  }
-
-  /**
-   * Provides data for testGetNearbyRatios.
-   */
-  public function dataForTestGetNearbyRatiosProvider() {
-    $tests = array();
-    $tests[] = array(
-      [
-        [6, 5],
-        [16, 13],
-        [24, 19],
-        [8, 7],
-        [4, 3],
-      ],
-      768,
-      634,
-    );
-    $tests[] = array(
-      [
-        [2, 1],
-        [8, 3],
-      ],
-      8,
-      4,
-    );
-
-    return $tests;
-  }
-
-  /**
-   * @dataProvider dataForTestGetNearbyRatiosProvider
-   */
-  public function testGetNearbyRatios($ratios, $width, $height) {
-    $nearbys = AspectRatio::getNearbyRatios($width, $height, count($ratios), .25);
-
-    // The floats cause problems so we trim them off.
-    $nearbys = array_map(function ($item) {
-      array_pop($item);
-      return $item;
-    }, $nearbys);
-
-    foreach ($ratios as $ratio) {
-      $this->assertContains($ratio, $nearbys);
-    }
   }
 
 }

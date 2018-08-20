@@ -147,7 +147,7 @@ class AspectRatio {
       array_unshift($item, 'nearby');
 
       return $item;
-    }, $this->getNearbyRatios($this->width, $this->height, $this->totalNear, $this->maxNearVarianceRatio)));
+    }, $this->getNearbyRatios($this->width, $this->height, $this->totalNear, $this->maxNearVarianceRatio, $this->getTargetWidth(), $this->getTargetHeight())));
 
     // Add in target dimensions.
     $ratios = array_map(function ($item) use ($original_height) {
@@ -160,10 +160,7 @@ class AspectRatio {
 
     // Sort the ratios from closest to original dimensions first, based on percentage.
     uasort($ratios, function ($a, $b) {
-      $a = abs($a[3]) * 100;
-      $b = abs($b[3]) * 100;
-
-      return $a - $b;
+      return abs($a[6]) - abs($b[6]);
     });
 
     // Add labels.
@@ -261,26 +258,35 @@ class AspectRatio {
    *   as separate elements.  These are ordered based on the first number of
    *   the ratio lowest to highest and not by the variance.
    */
-  public static function getNearbyRatios($width, $height, $count, $max_variance_ratio) {
-    $variant = max(1, round($height * static::NEAR_MARGIN, 0));
+  public static function getNearbyRatios($width, $height, $count, $max_variance_ratio, $target_width, $target_height) {
+    $height_variant = max(1, round($height * static::NEAR_MARGIN, 0));
+    $width_variant = max(1, round($width * static::NEAR_MARGIN, 0));
     $candidates = [];
-    for ($candidate_height = $height - $variant; $candidate_height < $height + $variant; ++$candidate_height) {
-      if (!$candidate_height) {
-        continue;
-      }
-      $candidate = static::getWholeNumberRatio($width, $candidate_height);
-      $variance_ratio = static::getHeightVarianceRatio($candidate_height, $height);
-      if (abs($variance_ratio) <= $max_variance_ratio) {
-        array_push($candidate, $variance_ratio);
-        $candidates[] = $candidate;
+
+    for ($candidate_width = $width - $width_variant; $candidate_width <= $width + $width_variant; ++$candidate_width) {
+      for ($candidate_height = $height - $height_variant; $candidate_height <= $height + $height_variant; ++$candidate_height) {
+        if (!$candidate_height) {
+          continue;
+        }
+        $candidate_ratio = static::getWholeNumberRatio($candidate_width, $candidate_height);
+        $computed_height = static::calculateHeightFromAspectRatio($candidate_width, $candidate_height, $target_width);
+        $variance_ratio = static::getHeightVarianceRatio($computed_height, $target_height);
+        if (abs($variance_ratio) <= $max_variance_ratio) {
+          $hash = implode(':', $candidate_ratio);
+          if (!isset($candidates[$hash])) {
+            array_push($candidate_ratio, $variance_ratio);
+            $candidates[$hash] = $candidate_ratio;
+          }
+        }
       }
     }
+
     uasort($candidates, function ($a, $b) {
       if ($a[0] !== $b[0]) {
         return $a[0] - $b[0];
       }
 
-      return $a[2] - $b[2];
+      return abs($a[2]) - abs($b[2]);
     });
 
     $candidates = array_map(function ($item) {
@@ -364,6 +370,21 @@ class AspectRatio {
    */
   public function getTargetWidth() {
     return $this->targetWidth ? $this->targetWidth : $this->width;
+  }
+
+  /**
+   * Get the target height for conversions.
+   *
+   * @return int
+   *   The target height.
+   */
+  public function getTargetHeight() {
+    $height = $this->height;
+    if (($width = $this->getTargetWidth()) != $this->width) {
+      $height = static::calculateHeightFromAspectRatio($this->width, $this->height, $width);
+    }
+
+    return $height;
   }
 
 }
