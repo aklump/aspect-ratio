@@ -23,12 +23,12 @@ class AspectRatio {
    *
    * @var float
    */
-  const NEAR_MARGIN = .1;
+  const NEAR_MARGIN = .06;
 
   /**
    * The maximium variance to allow for nearby ratios.
    */
-  const MAX_NEAR_VARIANCE_RATIO = .20;
+  const MAX_NEAR_VARIANCE_RATIO = .2;
 
   /**
    * The default precision for decimal.
@@ -42,7 +42,7 @@ class AspectRatio {
    *
    * @var int
    */
-  const TOTAL_NEAR = 5;
+  const TOTAL_NEAR = 10;
 
   /**
    * The target width (if converting).
